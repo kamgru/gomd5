@@ -1,8 +1,30 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 )
+
+func Test_ComputeHash(t *testing.T) {
+	type testCase struct {
+		input    string
+		expected string
+	}
+
+	tests := []testCase{
+		{"What I cannot create, I do not understand.", "e28bee9858753d26209fb95415257f33"},
+		{"The quick brown fox jumps over the lazy dog", "9e107d9d372bb6826bd81d3542a419d6"},
+		{"123456", "e10adc3949ba59abbe56e057f20f883e"},
+		{"abc", "900150983cd24fb0d6963f7d28e17f72"},
+	}
+
+	for _, test := range tests {
+		actual := fmt.Sprintf("%x", ComputeHash([]byte(test.input)))
+		if actual != test.expected {
+			t.Errorf("expected")
+		}
+	}
+}
 
 func Test_calculatePaddingBytesCount(t *testing.T) {
 
@@ -55,8 +77,9 @@ func Test_mergeInt(t *testing.T) {
 	}
 
 	tests := []TestCase{
-		{input: []byte{0, 0, 0, 11}, expected: 11},
-		{input: []byte{0, 0, 168, 202}, expected: 43210},
+		{input: []byte{11, 0, 0, 0}, expected: 11},
+		{input: []byte{202, 168, 0, 0}, expected: 43210},
+		{input: []byte{97, 98, 99, 128}, expected: 2153996897},
 	}
 
 	for _, test := range tests {
