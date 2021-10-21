@@ -2,22 +2,36 @@ package main
 
 import "math"
 
+func splitInput(data []byte) [][]byte {
+	chunkCount := len(data) / 64
+
+	var chunks = make([][]byte, chunkCount)
+
+	for index := 0; index < chunkCount; index += 1{
+		chunks[index] =	data[index * 64 : (index + 1) * 64]
+	}
+
+	return chunks
+}
+
+func produceWords(chunk []byte) [16]uint32 {
+	var words [16]uint32
+	for j := 0; j < 16; j++ {
+		words[j] = mergeInt(chunk[j*4 : (j+1)*4])
+	}
+
+	return words
+}
+
 func ComputeHash(input []byte) []byte {
 	data := prepareInput(input)
 
 	var A0, B0, C0, D0 uint32 = 0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476
 
-	chunkCount := len(data) / 64
+	for _, chunk := range splitInput(data){
+		var A, B, C, D = A0, B0, C0, D0
 
-	for i := 0; i < chunkCount; i++ {
-		chunk := data[i*64 : (i+1)*64]
-
-		var A, B, C, D uint32 = A0, B0, C0, D0
-
-		var words [16]uint32
-		for j := 0; j < 16; j++ {
-			words[j] = mergeInt(chunk[j*4 : (j+1)*4])
-		}
+		words := produceWords(chunk)
 
 		var k uint32
 		for k = 0; k < 64; k++ {
@@ -82,8 +96,7 @@ func calculatePaddingBytesCount(inputLength int) int {
 	return (64 * quotient) + 56 - inputLength
 }
 
-func encodeLength(length int64) [8]byte {
-
+func encodeInputLength(length int64) [8]byte {
 	var bytes [8]byte
 
 	for i := 0; i < 8; i++ {
@@ -98,7 +111,7 @@ func getAppendBytes(input []byte) []byte {
 	paddingBytes := make([]byte, paddingBytesCount)
 	paddingBytes[0] = 128
 
-	lengthBytes := encodeLength(int64(len(input) * 8))
+	lengthBytes := encodeInputLength(int64(len(input) * 8))
 
 	return append(paddingBytes, lengthBytes[:]...)
 }
