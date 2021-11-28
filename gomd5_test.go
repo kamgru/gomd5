@@ -27,7 +27,7 @@ func Test_ComputeHash(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := fmt.Sprintf("%x", ComputeHash([]byte(test.input)))
+		actual := fmt.Sprintf("%x", ComputeHashRfc([]byte(test.input)))
 		if actual != test.expected {
 			t.Errorf("expected")
 		}
@@ -91,7 +91,7 @@ func Test_mergeInt(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := mergeInt(test.input)
+		actual := byteArrayToUint32(test.input)
 
 		if actual != test.expected {
 			t.Errorf("expected %d actual %d", test.expected, actual)
